@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Personality Matchmaker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SCREEN 1: Welcome -->
+  <div id="screen-welcome" class="screen active">
+    <div class="card">
+      <div class="emoji-big">🔮</div>
+      <h1>AI Personality Matchmaker</h1>
+      <p class="subtitle">Answer a few questions and our AI will reveal your personality profile, your friendship compatibility, and your team role.</p>
+      <div class="mode-picker">
+        <p>Choose your quiz mode:</p>
+        <div class="mode-buttons">
+          <button class="mode-btn selected" data-mode="personality">
+            <span class="mode-icon">🌟</span>
+            <span class="mode-name">Personality Profile</span>
+            <span class="mode-desc">What archetype are you?</span>
+          </button>
+          <button class="mode-btn" data-mode="friend">
+            <span class="mode-icon">🤝</span>
+            <span class="mode-name">Friend Compatibility</span>
+            <span class="mode-desc">What kind of friend are you?</span>
+          </button>
+          <button class="mode-btn" data-mode="team">
+            <span class="mode-icon">⚡</span>
+            <span class="mode-name">Team Role</span>
+            <span class="mode-desc">What role do you play?</span>
+          </button>
+        </div>
+      </div>
+      <input type="text" id="player-name" placeholder="Enter your name (optional)" maxlength="40" />
+      <button id="start-btn" class="btn-primary">Start Quiz →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Quiz -->
+  <div id="screen-quiz" class="screen">
+    <div class="card">
+      <div class="progress-bar-wrap">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <div id="question-counter" class="question-counter">Question 1 of 7</div>
+      <div id="question-text" class="question-text"></div>
+      <div id="answer-area" class="answer-area"></div>
+      <button id="next-btn" class="btn-primary" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Loading -->
+  <div id="screen-loading" class="screen">
+    <div class="card">
+      <div class="spinner"></div>
+      <h2>The AI is reading your soul...</h2>
+      <p class="loading-msg" id="loading-msg">Analyzing your responses...</p>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Results -->
+  <div id="screen-results" class="screen">
+    <div class="card results-card">
+      <div id="result-emoji" class="emoji-big"></div>
+      <h2 id="result-title"></h2>
+      <div id="result-subtitle" class="result-subtitle"></div>
+      <div id="result-body" class="result-body"></div>
+      <div id="result-traits" class="result-traits"></div>
+      <div id="result-match" class="result-match"></div>
+      <button id="restart-btn" class="btn-secondary">Play Again</button>
+    </div>
+  </div>
+
+  <script src="quiz.js"></script>
+</body>
+</html>
