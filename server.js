@@ -1,13 +1,10 @@
 require('dotenv').config();
 const express = require('express');
-const Anthropic = require('@anthropic-ai/sdk');
 const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const MODE_PROMPTS = {
   personality: `You are an insightful personality analyst for a fun quiz game.
@@ -74,16 +71,33 @@ app.post('/api/analyze', async (req, res) => {
   const userMessage = `Player name: ${name}\n\nHere are their quiz answers:\n\n${answerBlock}\n\nPlease analyze these responses and return the JSON profile.`;
 
   try {
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }]
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
+        'X-Title': 'Personality Matchmaker'
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-3.3-8b-instruct:free',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 1024
+      })
     });
 
-    const raw = message.content[0].text;
+    if (!response.ok) {
+      const err = await response.json();
+      console.error('OpenRouter error:', err);
+      return res.status(500).json({ error: 'AI request failed. Check your API key.' });
+    }
 
-    // Extract JSON from the response (handles markdown code fences if present)
+    const data = await response.json();
+    const raw = data.choices[0].message.content;
+
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       console.error('No JSON found in response:', raw);
@@ -94,10 +108,7 @@ app.post('/api/analyze', async (req, res) => {
     res.json(result);
 
   } catch (err) {
-    console.error('API error:', err.message);
-    if (err.status === 401) {
-      return res.status(500).json({ error: 'Invalid API key. Check your .env file.' });
-    }
+    console.error('Server error:', err.message);
     res.status(500).json({ error: 'Failed to get AI analysis. Please try again.' });
   }
 });
