@@ -186,7 +186,7 @@ const QUESTIONS = {
 };
 
 // ===== OPENROUTER CONFIG =====
-const OPENROUTER_API_KEY = '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';
+let OPENROUTER_API_KEY = '';
 const OPENROUTER_MODEL = 'meta-llama/llama-3.3-8b-instruct:free';
 
 const MODE_PROMPTS = {
@@ -265,6 +265,12 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 
 // ===== START QUIZ =====
 document.getElementById('start-btn').addEventListener('click', () => {
+  const keyInput = document.getElementById('api-key').value.trim();
+  if (!keyInput) {
+    alert('Please enter your OpenRouter API key.');
+    return;
+  }
+  OPENROUTER_API_KEY = keyInput;
   playerName = document.getElementById('player-name').value.trim();
   currentQuestion = 0;
   answers = [];

@@ -148,6 +148,32 @@ h1 {
 #player-name:focus { border-color: var(--accent1); }
 #player-name::placeholder { color: var(--text-muted); }
 
+#api-key {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#api-key:focus { border-color: var(--accent1); }
+#api-key::placeholder { color: var(--text-muted); }
+
+.api-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.api-hint a { color: var(--accent1); text-decoration: none; }
+.api-hint a:hover { text-decoration: underline; }
+
 /* ===== BUTTONS ===== */
 .btn-primary {
   width: 100%;
