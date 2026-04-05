@@ -185,6 +185,54 @@ const QUESTIONS = {
   ]
 };
 
+// ===== OPENROUTER CONFIG =====
+const OPENROUTER_API_KEY = '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';
+const OPENROUTER_MODEL = 'meta-llama/llama-3.3-8b-instruct:free';
+
+const MODE_PROMPTS = {
+  personality: `You are an insightful personality analyst for a fun quiz game.
+A player has answered a series of personality questions. Analyze their responses and create a vivid, personalized personality profile.
+
+Your response MUST be valid JSON with exactly this structure:
+{
+  "emoji": "<one emoji that represents this personality>",
+  "title": "<creative archetype title, e.g. 'The Quiet Architect' or 'The Magnetic Spark'>",
+  "subtitle": "<short punchy tagline, max 10 words>",
+  "description": "<3-4 sentences describing their personality, written warmly and directly to them using 'you'>",
+  "traits": ["<trait 1>", "<trait 2>", "<trait 3>", "<trait 4>"],
+  "bestMatch": "<which type of person they match best with and why, 2 sentences>",
+  "insight": "<one surprising or deep insight about them based on their answers, 1-2 sentences>"
+}`,
+
+  friend: `You are a social dynamics expert for a fun quiz game.
+A player has answered questions about their friendship style. Analyze their responses and reveal what kind of friend they are.
+
+Your response MUST be valid JSON with exactly this structure:
+{
+  "emoji": "<one emoji that represents their friend style>",
+  "title": "<creative friend archetype, e.g. 'The Anchor Friend' or 'The Adventure Instigator'>",
+  "subtitle": "<short punchy tagline about their friendship style, max 10 words>",
+  "description": "<3-4 sentences describing how they show up for their friends, written warmly and directly to them using 'you'>",
+  "traits": ["<friendship trait 1>", "<friendship trait 2>", "<friendship trait 3>", "<friendship trait 4>"],
+  "bestMatch": "<what kind of friend complements them best and why, 2 sentences>",
+  "insight": "<one honest and warm insight about their friendship patterns, 1-2 sentences>"
+}`,
+
+  team: `You are a team dynamics coach for a fun quiz game.
+A player has answered questions about how they work with others. Analyze their responses and reveal their team role.
+
+Your response MUST be valid JSON with exactly this structure:
+{
+  "emoji": "<one emoji that represents their team role>",
+  "title": "<creative team role title, e.g. 'The Visionary Catalyst' or 'The Steady Engine'>",
+  "subtitle": "<short punchy tagline about their team role, max 10 words>",
+  "description": "<3-4 sentences describing how they contribute in teams, written warmly and directly to them using 'you'>",
+  "traits": ["<team trait 1>", "<team trait 2>", "<team trait 3>", "<team trait 4>"],
+  "bestMatch": "<what team role or type of colleague balances them best and why, 2 sentences>",
+  "insight": "<one sharp insight about how they can maximize their team impact, 1-2 sentences>"
+}`
+};
+
 // ===== STATE =====
 let currentMode = 'personality';
 let playerName = '';
@@ -247,7 +295,7 @@ function loadQuestion() {
 
   if (q.type === 'mc') {
     answerArea.classList.add('mc');
-    q.options.forEach((opt, i) => {
+    q.options.forEach((opt) => {
       const btn = document.createElement('button');
       btn.className = 'option-btn';
       btn.textContent = opt;
@@ -324,14 +372,29 @@ async function runAnalysis() {
   showScreen('loading');
   const interval = cycleLoadingMessages();
 
+  const name = playerName || 'the player';
+  const answerBlock = answers
+    .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer}`)
+    .join('\n\n');
+
+  const userMessage = `Player name: ${name}\n\nHere are their quiz answers:\n\n${answerBlock}\n\nPlease analyze these responses and return the JSON profile.`;
+
   try {
-    const response = await fetch('/api/analyze', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.href,
+        'X-Title': 'Personality Matchmaker'
+      },
       body: JSON.stringify({
-        mode: currentMode,
-        playerName,
-        answers
+        model: OPENROUTER_MODEL,
+        messages: [
+          { role: 'system', content: MODE_PROMPTS[currentMode] },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 1024
       })
     });
 
@@ -339,16 +402,25 @@ async function runAnalysis() {
 
     if (!response.ok) {
       const err = await response.json();
-      showError(err.error || 'Something went wrong.');
+      showError(err.error?.message || 'AI request failed.');
       return;
     }
 
-    const result = await response.json();
+    const data = await response.json();
+    const raw = data.choices[0].message.content;
+
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      showError('AI returned an unexpected format. Please try again.');
+      return;
+    }
+
+    const result = JSON.parse(jsonMatch[0]);
     showResults(result);
 
   } catch (err) {
     clearInterval(interval);
-    showError('Could not connect to the server. Is it running?');
+    showError('Could not reach the AI. Check your connection and try again.');
   }
 }
 
