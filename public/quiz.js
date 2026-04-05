@@ -428,18 +428,32 @@ async function runAnalysis() {
         })
       });
 
-      if (!response.ok) {
-        const err = await response.json();
-        lastError = err.error?.message || 'AI request failed.';
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        lastError = data.error?.message || 'AI request failed.';
+        console.warn(`Model ${model} failed:`, lastError);
         continue;
       }
 
-      const data = await response.json();
-      const raw = data.choices[0].message.content;
+      const raw = data.choices?.[0]?.message?.content;
+      if (!raw) {
+        lastError = 'AI returned an empty response.';
+        console.warn(`Model ${model} returned no content.`);
+        continue;
+      }
+
+      // some models wrap errors in a 200 with an error-like message
+      if (raw.toLowerCase().includes('provider returned error') || raw.toLowerCase().includes('no endpoints found')) {
+        lastError = 'Provider error.';
+        console.warn(`Model ${model} returned provider error in body.`);
+        continue;
+      }
 
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         lastError = 'AI returned an unexpected format.';
+        console.warn(`Model ${model} returned non-JSON:`, raw.slice(0, 100));
         continue;
       }
 
