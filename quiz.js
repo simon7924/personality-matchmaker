@@ -187,37 +187,27 @@ const QUESTIONS = {
 
 // ===== OPENROUTER CONFIG =====
 let OPENROUTER_API_KEY = '';
-const OPENROUTER_FALLBACK_MODELS = [
-  'meta-llama/llama-3.3-8b-instruct:free',
-  'mistralai/mistral-7b-instruct:free',
-  'google/gemma-3-27b-it:free',
-  'deepseek/deepseek-r1-distill-llama-70b:free',
-  'microsoft/phi-3-mini-128k-instruct:free',
-  'qwen/qwen-2-7b-instruct:free',
-  'openchat/openchat-7b:free',
-];
-let OPENROUTER_MODELS = null; // populated at runtime from API
 
 async function getAvailableModels() {
-  if (OPENROUTER_MODELS) return OPENROUTER_MODELS;
   try {
     const res = await fetch('https://openrouter.ai/api/v1/models', {
       headers: { 'Authorization': `Bearer ${OPENROUTER_API_KEY}` }
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
-    const freeIds = new Set(
-      data.data
-        .filter(m => m.id.endsWith(':free'))
-        .map(m => m.id)
-    );
-    // keep fallback order, only include ones that exist in API
-    OPENROUTER_MODELS = OPENROUTER_FALLBACK_MODELS.filter(id => freeIds.has(id));
-    if (OPENROUTER_MODELS.length === 0) OPENROUTER_MODELS = OPENROUTER_FALLBACK_MODELS;
-  } catch {
-    OPENROUTER_MODELS = OPENROUTER_FALLBACK_MODELS;
-  }
-  return OPENROUTER_MODELS;
+    const freeModels = data.data
+      .filter(m => m.id.endsWith(':free'))
+      .map(m => m.id);
+    if (freeModels.length > 0) return freeModels;
+  } catch {}
+  // hard fallback if API call fails
+  return [
+    'meta-llama/llama-3.3-8b-instruct:free',
+    'mistralai/mistral-7b-instruct:free',
+    'google/gemma-3-27b-it:free',
+    'deepseek/deepseek-r1-distill-llama-70b:free',
+    'qwen/qwen-2-7b-instruct:free',
+  ];
 }
 
 const MODE_PROMPTS = {
