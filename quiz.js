@@ -186,7 +186,7 @@ const QUESTIONS = {
 };
 
 // ===== OPENROUTER CONFIG =====
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY = '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';
 const OPENROUTER_MODEL = 'meta-llama/llama-3.3-8b-instruct:free';
 
 const MODE_PROMPTS = {
