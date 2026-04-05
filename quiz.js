@@ -187,7 +187,13 @@ const QUESTIONS = {
 
 // ===== OPENROUTER CONFIG =====
 let OPENROUTER_API_KEY = '';
-const OPENROUTER_MODEL = 'meta-llama/llama-3.3-8b-instruct:free';
+const OPENROUTER_MODELS = [
+  'meta-llama/llama-3.3-8b-instruct:free',
+  'mistralai/mistral-7b-instruct:free',
+  'google/gemma-3-27b-it:free',
+  'deepseek/deepseek-r1-distill-llama-70b:free',
+  'microsoft/phi-3-mini-128k-instruct:free',
+];
 
 const MODE_PROMPTS = {
   personality: `You are an insightful personality analyst for a fun quiz game.
@@ -385,49 +391,54 @@ async function runAnalysis() {
 
   const userMessage = `Player name: ${name}\n\nHere are their quiz answers:\n\n${answerBlock}\n\nPlease analyze these responses and return the JSON profile.`;
 
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.href,
-        'X-Title': 'Personality Matchmaker'
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        messages: [
-          { role: 'system', content: MODE_PROMPTS[currentMode] },
-          { role: 'user', content: userMessage }
-        ],
-        max_tokens: 1024
-      })
-    });
+  let lastError = 'AI request failed.';
+  for (const model of OPENROUTER_MODELS) {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.href,
+          'X-Title': 'Personality Matchmaker'
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: MODE_PROMPTS[currentMode] },
+            { role: 'user', content: userMessage }
+          ],
+          max_tokens: 1024
+        })
+      });
 
-    clearInterval(interval);
+      if (!response.ok) {
+        const err = await response.json();
+        lastError = err.error?.message || 'AI request failed.';
+        continue;
+      }
 
-    if (!response.ok) {
-      const err = await response.json();
-      showError(err.error?.message || 'AI request failed.');
+      const data = await response.json();
+      const raw = data.choices[0].message.content;
+
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        lastError = 'AI returned an unexpected format.';
+        continue;
+      }
+
+      clearInterval(interval);
+      const result = JSON.parse(jsonMatch[0]);
+      showResults(result);
       return;
+
+    } catch (err) {
+      lastError = 'Could not reach the AI. Check your connection and try again.';
     }
-
-    const data = await response.json();
-    const raw = data.choices[0].message.content;
-
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      showError('AI returned an unexpected format. Please try again.');
-      return;
-    }
-
-    const result = JSON.parse(jsonMatch[0]);
-    showResults(result);
-
-  } catch (err) {
-    clearInterval(interval);
-    showError('Could not reach the AI. Check your connection and try again.');
   }
+
+  clearInterval(interval);
+  showError(lastError);
 }
 
 // ===== SHOW RESULTS =====
