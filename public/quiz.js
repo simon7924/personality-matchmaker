@@ -599,6 +599,7 @@ let selectedOption = null;
 let quizLength = 10;
 let activeQuestions = [];
 let hasChosenMode = false;
+let currentResultData = null;
 
 // ===== ELEMENTS =====
 const screens = {
@@ -612,6 +613,8 @@ const startBtn = document.getElementById('start-btn');
 const lengthSlider = document.getElementById('quiz-length');
 const lengthValue = document.getElementById('quiz-length-value');
 const lengthPicker = document.getElementById('quiz-length-picker');
+const resultsCard = document.getElementById('results-card');
+const shareStatus = document.getElementById('share-status');
 
 // ===== SCREEN TRANSITIONS =====
 function showScreen(name) {
@@ -656,6 +659,93 @@ function shuffleArray(arr) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+
+function setShareStatus(message) {
+  shareStatus.textContent = message;
+}
+
+function buildShareText() {
+  if (!currentResultData) return '';
+
+  const lines = [
+    `${currentResultData.emoji || '✨'} ${currentResultData.title || 'My Personality Matchmaker Result'}`,
+    currentResultData.subtitle || '',
+    '',
+    currentResultData.description || ''
+  ];
+
+  if (Array.isArray(currentResultData.traits) && currentResultData.traits.length) {
+    lines.push('', `Traits: ${currentResultData.traits.join(', ')}`);
+  }
+
+  if (currentResultData.bestMatch) {
+    lines.push('', `Best match: ${currentResultData.bestMatch}`);
+  }
+
+  if (currentResultData.insight) {
+    lines.push('', `A deeper look: ${currentResultData.insight}`);
+  }
+
+  lines.push('', `Take the quiz: ${window.location.href}`);
+  return lines.filter((line, index, arr) => !(line === '' && arr[index - 1] === '')).join('\n');
+}
+
+async function copyResultToClipboard() {
+  const shareText = buildShareText();
+  if (!shareText) {
+    setShareStatus('Nothing to copy yet.');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareText);
+    setShareStatus('Result copied to clipboard.');
+  } catch (err) {
+    const helper = document.createElement('textarea');
+    helper.value = shareText;
+    helper.setAttribute('readonly', '');
+    helper.style.position = 'absolute';
+    helper.style.left = '-9999px';
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand('copy');
+    document.body.removeChild(helper);
+    setShareStatus('Result copied to clipboard.');
+  }
+}
+
+async function downloadResultImage() {
+  if (!window.html2canvas || !currentResultData) {
+    setShareStatus('Image capture is not ready yet.');
+    return;
+  }
+
+  setShareStatus('Preparing image...');
+  resultsCard.classList.add('is-capturing');
+
+  try {
+    const canvas = await window.html2canvas(resultsCard, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true
+    });
+
+    const link = document.createElement('a');
+    const safeTitle = (currentResultData.title || 'quiz-result')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    link.download = `${safeTitle || 'quiz-result'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    setShareStatus('Image downloaded.');
+  } catch (err) {
+    setShareStatus('Could not capture the result image.');
+  } finally {
+    resultsCard.classList.remove('is-capturing');
+  }
 }
 
 // ===== START QUIZ =====
@@ -849,6 +939,8 @@ async function runAnalysis() {
 
 // ===== SHOW RESULTS =====
 function showResults(data) {
+  currentResultData = data;
+  setShareStatus('');
   document.getElementById('result-emoji').textContent = data.emoji || '✨';
   document.getElementById('result-title').textContent = data.title || 'Your Profile';
   document.getElementById('result-subtitle').textContent = data.subtitle || '';
@@ -886,6 +978,8 @@ function showResults(data) {
 
 // ===== ERROR HANDLING =====
 function showError(msg) {
+  currentResultData = null;
+  setShareStatus('');
   showScreen('results');
   document.getElementById('result-emoji').textContent = '⚠️';
   document.getElementById('result-title').textContent = 'Oops!';
@@ -904,13 +998,18 @@ document.getElementById('restart-btn').addEventListener('click', () => {
   answers = [];
   activeQuestions = [];
   hasChosenMode = false;
+  currentResultData = null;
   quizLength = 10;
   lengthSlider.value = '10';
   updateLengthLabel();
   lengthPicker.classList.remove('visible');
   startBtn.disabled = true;
   startBtn.textContent = 'Choose a Quiz First ->';
+  setShareStatus('');
   showScreen('welcome');
 });
+
+document.getElementById('copy-result-btn').addEventListener('click', copyResultToClipboard);
+document.getElementById('download-result-btn').addEventListener('click', downloadResultImage);
 
 updateLengthLabel();

@@ -78,17 +78,26 @@
 
   <!-- SCREEN 4: Results -->
   <div id="screen-results" class="screen">
-    <div class="card results-card">
+    <div class="card results-card" id="results-card">
       <div id="result-emoji" class="emoji-big"></div>
       <h2 id="result-title"></h2>
       <div id="result-subtitle" class="result-subtitle"></div>
       <div id="result-body" class="result-body"></div>
       <div id="result-traits" class="result-traits"></div>
       <div id="result-match" class="result-match"></div>
+      <div class="share-panel" id="share-panel">
+        <div class="share-title">Share your result</div>
+        <div class="share-actions">
+          <button id="copy-result-btn" class="btn-secondary share-btn">Copy Result</button>
+          <button id="download-result-btn" class="btn-secondary share-btn">Download Image</button>
+        </div>
+        <div id="share-status" class="share-status" aria-live="polite"></div>
+      </div>
       <button id="restart-btn" class="btn-secondary">Play Again</button>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="quiz.js"></script>
 </body>
 </html>

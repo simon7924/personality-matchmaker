@@ -8,7 +8,7 @@ const QUESTIONS = {
       options: [
         "Dive into a project or hobby I've been putting off",
         "Text friends and make something happen",
-        "Enjoy the quiet — read, relax, recharge",
+        "Enjoy the quiet - read, relax, recharge",
         "Let the day unfold and see where it goes"
       ]
     },
@@ -19,7 +19,7 @@ const QUESTIONS = {
         "Help them break it down and find a solution",
         "Be there, listen, and make them feel heard",
         "Tell them honestly what I really think",
-        "Distract them — get them laughing or out of the house"
+        "Distract them - get them laughing or out of the house"
       ]
     },
     {
@@ -55,7 +55,7 @@ const QUESTIONS = {
       question: "How do you make most of your important decisions?",
       options: [
         "I research, weigh options, and decide logically",
-        "I go with my gut — it usually knows",
+        "I go with my gut - it usually knows",
         "I talk it through with people I trust",
         "I sit with it until something feels right"
       ]
@@ -88,7 +88,7 @@ const QUESTIONS = {
       type: 'mc',
       question: "How do you usually handle criticism?",
       options: [
-        "Analyze it objectively — is it valid?",
+        "Analyze it objectively - is it valid?",
         "It stings, but I reflect on it later",
         "I want to understand the person's perspective first",
         "I brush it off and keep moving"
@@ -101,7 +101,7 @@ const QUESTIONS = {
         "Deep conversation with one or two close people",
         "A lively gathering with lots of different people",
         "Alone time doing something I love",
-        "Something spontaneous — I'll know it when I see it"
+        "Something spontaneous - I'll know it when I see it"
       ]
     },
     {
@@ -142,9 +142,9 @@ const QUESTIONS = {
       type: 'mc',
       question: "Your relationship with routine is...",
       options: [
-        "I love it — structure helps me thrive",
+        "I love it - structure helps me thrive",
         "Some routine is good, but I need variety",
-        "I resist it — I prefer to stay flexible",
+        "I resist it - I prefer to stay flexible",
         "It depends entirely on the area of my life"
       ]
     },
@@ -159,7 +159,7 @@ const QUESTIONS = {
         "Fear of doing it wrong",
         "Not knowing where to begin",
         "Worrying what others will think",
-        "Honestly — not much stops me"
+        "Honestly - not much stops me"
       ]
     },
     {
@@ -177,7 +177,7 @@ const QUESTIONS = {
   friend: [
     {
       type: 'mc',
-      question: "Your friend just got some huge news — good or bad. Your first move is...",
+      question: "Your friend just got some huge news - good or bad. Your first move is...",
       options: [
         "Call them immediately, no text",
         "Show up in person with food or something comforting",
@@ -203,8 +203,8 @@ const QUESTIONS = {
       type: 'mc',
       question: "A friend cancels plans last minute for the third time. You...",
       options: [
-        "Let it go — they probably have a good reason",
-        "Bring it up gently — it's starting to bother me",
+        "Let it go - they probably have a good reason",
+        "Bring it up gently - it's starting to bother me",
         "Feel hurt but say nothing",
         "Match their energy going forward"
       ]
@@ -213,10 +213,10 @@ const QUESTIONS = {
       type: 'mc',
       question: "What do you value most in a friendship?",
       options: [
-        "Loyalty — I know they always have my back",
-        "Honesty — they'll tell me the truth",
-        "Fun — we always have a good time",
-        "Depth — we can talk about anything"
+        "Loyalty - I know they always have my back",
+        "Honesty - they'll tell me the truth",
+        "Fun - we always have a good time",
+        "Depth - we can talk about anything"
       ]
     },
     {
@@ -230,7 +230,7 @@ const QUESTIONS = {
         "1-2. I go deep, not wide.",
         "3-5. A tight crew is perfect.",
         "6-10. I have a big circle of close people.",
-        "Honestly, I'm not sure — it's hard to define 'close'."
+        "Honestly, I'm not sure - it's hard to define 'close'."
       ]
     },
     {
@@ -247,10 +247,10 @@ const QUESTIONS = {
       type: 'mc',
       question: "What does a typical catch-up with a close friend look like for you?",
       options: [
-        "Long dinner or walk — we could talk for hours",
+        "Long dinner or walk - we could talk for hours",
         "Quick coffee, but we make it count",
-        "Group hangout — I like everyone together",
-        "Whatever — I'm easy, I just enjoy the time"
+        "Group hangout - I like everyone together",
+        "Whatever - I'm easy, I just enjoy the time"
       ]
     },
     {
@@ -273,8 +273,8 @@ const QUESTIONS = {
       options: [
         "Through shared activities or interests",
         "Organically through existing friends",
-        "I put myself out there — I'll talk to anyone",
-        "It's rare — I'm selective about who I let in"
+        "I put myself out there - I'll talk to anyone",
+        "It's rare - I'm selective about who I let in"
       ]
     },
     {
@@ -282,7 +282,7 @@ const QUESTIONS = {
       question: "Your friend is making a big mistake. You...",
       options: [
         "Tell them honestly, even if it's uncomfortable",
-        "Support them — it's their life to live",
+        "Support them - it's their life to live",
         "Ask questions to help them think it through",
         "Wait for them to ask my opinion"
       ]
@@ -295,7 +295,7 @@ const QUESTIONS = {
       type: 'mc',
       question: "How do you show love to the people you care about?",
       options: [
-        "I do things for them — acts of service",
+        "I do things for them - acts of service",
         "I spend quality time with them",
         "I tell them how much they mean to me",
         "I give thoughtful gifts or gestures"
@@ -308,7 +308,7 @@ const QUESTIONS = {
         "Step in to mediate and help resolve it",
         "Stay neutral and avoid taking sides",
         "Support whoever I think is right",
-        "Step back — group drama isn't my thing"
+        "Step back - group drama isn't my thing"
       ]
     },
     {
@@ -317,7 +317,7 @@ const QUESTIONS = {
       options: [
         "Disloyalty or betrayal",
         "Constant negativity or complaining",
-        "One-sided effort — I give more than I get",
+        "One-sided effort - I give more than I get",
         "Dishonesty, even small lies"
       ]
     },
@@ -331,7 +331,7 @@ const QUESTIONS = {
       options: [
         "Open up to close friends right away",
         "Process alone first, then share when ready",
-        "Downplay it — I don't want to burden people",
+        "Downplay it - I don't want to burden people",
         "Lean on whoever is available"
       ]
     },
@@ -339,10 +339,10 @@ const QUESTIONS = {
       type: 'mc',
       question: "Which best describes your friendship style?",
       options: [
-        "I'm the glue — I keep everyone connected",
-        "I'm the listener — people come to me",
-        "I'm the spark — I bring the energy",
-        "I'm the rock — steady and always there"
+        "I'm the glue - I keep everyone connected",
+        "I'm the listener - people come to me",
+        "I'm the spark - I bring the energy",
+        "I'm the rock - steady and always there"
       ]
     }
   ],
@@ -353,7 +353,7 @@ const QUESTIONS = {
       question: "Your team has a big project due in two weeks. You naturally start by...",
       options: [
         "Mapping out the full plan and assigning tasks",
-        "Jumping into execution — I'll figure it out as I go",
+        "Jumping into execution - I'll figure it out as I go",
         "Making sure everyone's aligned and motivated",
         "Identifying the biggest risks and unknowns first"
       ]
@@ -410,7 +410,7 @@ const QUESTIONS = {
       type: 'mc',
       question: "How do you handle it when a project changes direction mid-way?",
       options: [
-        "Adapt quickly — change is part of the process",
+        "Adapt quickly - change is part of the process",
         "Feel frustrated, but get on board once I understand why",
         "Push back if I think the new direction is wrong",
         "Focus on what stays the same and build from there"
@@ -420,7 +420,7 @@ const QUESTIONS = {
       type: 'mc',
       question: "When you get feedback on your work, you...",
       options: [
-        "Appreciate it — it helps me improve",
+        "Appreciate it - it helps me improve",
         "Take it seriously but filter for what's actually useful",
         "Prefer to receive it privately, not in front of others",
         "Want specific examples so I can act on it"
@@ -444,7 +444,7 @@ const QUESTIONS = {
       type: 'mc',
       question: "What's your biggest strength on a team?",
       options: [
-        "I get things done — fast and reliably",
+        "I get things done - fast and reliably",
         "I keep the team's morale high",
         "I bring creative or unconventional thinking",
         "I catch problems before they become crises"
@@ -478,18 +478,18 @@ const QUESTIONS = {
       type: 'mc',
       question: "How do you prefer to communicate with your team?",
       options: [
-        "Async messages — I like to think before I respond",
-        "Quick calls — it's faster than back-and-forth texts",
-        "In-person or video — I want to read the room",
-        "Whatever works for the team — I'm flexible"
+        "Async messages - I like to think before I respond",
+        "Quick calls - it's faster than back-and-forth texts",
+        "In-person or video - I want to read the room",
+        "Whatever works for the team - I'm flexible"
       ]
     },
     {
       type: 'mc',
       question: "After a project wraps up, you typically...",
       options: [
-        "Do a debrief — what worked, what didn't?",
-        "Celebrate with the team — we earned it",
+        "Do a debrief - what worked, what didn't?",
+        "Celebrate with the team - we earned it",
         "Move straight on to the next thing",
         "Reflect quietly on what I'd do differently"
       ]
@@ -515,7 +515,7 @@ const QUESTIONS = {
         "Ask clarifying questions before starting",
         "Make reasonable assumptions and get going",
         "Sketch out a few interpretations and check in",
-        "Feel uneasy — I need clarity to do my best work"
+        "Feel uneasy - I need clarity to do my best work"
       ]
     }
   ]
@@ -527,22 +527,22 @@ let OPENROUTER_API_KEY = '';
 async function getAvailableModels() {
   try {
     const res = await fetch('https://openrouter.ai/api/v1/models', {
-      headers: { 'Authorization': `Bearer ${OPENROUTER_API_KEY}` }
+      headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}` }
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
     const freeModels = data.data
-      .filter(m => m.id.endsWith(':free'))
-      .map(m => m.id);
+      .filter((m) => m.id.endsWith(':free'))
+      .map((m) => m.id);
     if (freeModels.length > 0) return freeModels;
   } catch {}
-  // hard fallback if API call fails
+
   return [
     'meta-llama/llama-3.3-8b-instruct:free',
     'mistralai/mistral-7b-instruct:free',
     'google/gemma-3-27b-it:free',
     'deepseek/deepseek-r1-distill-llama-70b:free',
-    'qwen/qwen-2-7b-instruct:free',
+    'qwen/qwen-2-7b-instruct:free'
   ];
 }
 
@@ -598,6 +598,8 @@ let answers = [];
 let selectedOption = null;
 let quizLength = 10;
 let activeQuestions = [];
+let hasChosenMode = false;
+let currentResultData = null;
 
 // ===== ELEMENTS =====
 const screens = {
@@ -607,47 +609,155 @@ const screens = {
   results: document.getElementById('screen-results')
 };
 
+const startBtn = document.getElementById('start-btn');
+const lengthSlider = document.getElementById('quiz-length');
+const lengthValue = document.getElementById('quiz-length-value');
+const lengthPicker = document.getElementById('quiz-length-picker');
+const resultsCard = document.getElementById('results-card');
+const shareStatus = document.getElementById('share-status');
+
 // ===== SCREEN TRANSITIONS =====
 function showScreen(name) {
-  Object.values(screens).forEach(s => s.classList.remove('active'));
+  Object.values(screens).forEach((screen) => screen.classList.remove('active'));
   screens[name].classList.add('active');
 }
 
+// ===== QUIZ SETUP UI =====
+function updateLengthLabel() {
+  lengthValue.textContent = `${quizLength} questions`;
+}
+
+function revealQuizSetup(mode) {
+  const modeName = document.querySelector(`.mode-btn[data-mode="${mode}"] .mode-name`)?.textContent || 'Quiz';
+  hasChosenMode = true;
+  lengthPicker.classList.add('visible');
+  startBtn.disabled = false;
+  startBtn.textContent = `Start ${modeName} ->`;
+}
+
 // ===== MODE SELECTION =====
-document.querySelectorAll('.mode-btn').forEach(btn => {
+document.querySelectorAll('.mode-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.mode-btn').forEach((button) => button.classList.remove('selected'));
     btn.classList.add('selected');
     currentMode = btn.dataset.mode;
+    revealQuizSetup(currentMode);
   });
 });
 
 // ===== QUIZ LENGTH SLIDER =====
-const lengthSlider = document.getElementById('quiz-length');
-const lengthValue = document.getElementById('quiz-length-value');
-
 lengthSlider.addEventListener('input', () => {
   quizLength = parseInt(lengthSlider.value, 10);
-  lengthValue.textContent = `${quizLength} question${quizLength === 1 ? '' : 's'}`;
+  updateLengthLabel();
 });
 
 // ===== SHUFFLE HELPER =====
 function shuffleArray(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-  return a;
+  return copy;
+}
+
+function setShareStatus(message) {
+  shareStatus.textContent = message;
+}
+
+function buildShareText() {
+  if (!currentResultData) return '';
+
+  const lines = [
+    `${currentResultData.emoji || '✨'} ${currentResultData.title || 'My Personality Matchmaker Result'}`,
+    currentResultData.subtitle || '',
+    '',
+    currentResultData.description || ''
+  ];
+
+  if (Array.isArray(currentResultData.traits) && currentResultData.traits.length) {
+    lines.push('', `Traits: ${currentResultData.traits.join(', ')}`);
+  }
+
+  if (currentResultData.bestMatch) {
+    lines.push('', `Best match: ${currentResultData.bestMatch}`);
+  }
+
+  if (currentResultData.insight) {
+    lines.push('', `A deeper look: ${currentResultData.insight}`);
+  }
+
+  lines.push('', `Take the quiz: ${window.location.href}`);
+  return lines.filter((line, index, arr) => !(line === '' && arr[index - 1] === '')).join('\n');
+}
+
+async function copyResultToClipboard() {
+  const shareText = buildShareText();
+  if (!shareText) {
+    setShareStatus('Nothing to copy yet.');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(shareText);
+    setShareStatus('Result copied to clipboard.');
+  } catch (err) {
+    const helper = document.createElement('textarea');
+    helper.value = shareText;
+    helper.setAttribute('readonly', '');
+    helper.style.position = 'absolute';
+    helper.style.left = '-9999px';
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand('copy');
+    document.body.removeChild(helper);
+    setShareStatus('Result copied to clipboard.');
+  }
+}
+
+async function downloadResultImage() {
+  if (!window.html2canvas || !currentResultData) {
+    setShareStatus('Image capture is not ready yet.');
+    return;
+  }
+
+  setShareStatus('Preparing image...');
+  resultsCard.classList.add('is-capturing');
+
+  try {
+    const canvas = await window.html2canvas(resultsCard, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true
+    });
+
+    const link = document.createElement('a');
+    const safeTitle = (currentResultData.title || 'quiz-result')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    link.download = `${safeTitle || 'quiz-result'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    setShareStatus('Image downloaded.');
+  } catch (err) {
+    setShareStatus('Could not capture the result image.');
+  } finally {
+    resultsCard.classList.remove('is-capturing');
+  }
 }
 
 // ===== START QUIZ =====
-document.getElementById('start-btn').addEventListener('click', () => {
+startBtn.addEventListener('click', () => {
+  if (!hasChosenMode) return;
+
   const keyInput = document.getElementById('api-key').value.trim();
   if (!keyInput) {
     alert('Please enter your OpenRouter API key.');
     return;
   }
+
   OPENROUTER_API_KEY = keyInput;
   playerName = document.getElementById('player-name').value.trim();
   currentQuestion = 0;
@@ -665,7 +775,7 @@ function loadQuestion() {
   const total = activeQuestions.length;
   const progress = (currentQuestion / total) * 100;
 
-  document.getElementById('progress-bar').style.width = progress + '%';
+  document.getElementById('progress-bar').style.width = `${progress}%`;
   document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of ${total}`;
   document.getElementById('question-text').textContent = q.question;
 
@@ -675,7 +785,7 @@ function loadQuestion() {
 
   const nextBtn = document.getElementById('next-btn');
   nextBtn.disabled = true;
-  nextBtn.textContent = currentQuestion === total - 1 ? 'See My Results ✨' : 'Next →';
+  nextBtn.textContent = currentQuestion === total - 1 ? 'See My Results ✨' : 'Next ->';
 
   if (q.type === 'mc') {
     answerArea.classList.add('mc');
@@ -684,34 +794,35 @@ function loadQuestion() {
       btn.className = 'option-btn';
       btn.textContent = opt;
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('.option-btn').forEach((button) => button.classList.remove('selected'));
         btn.classList.add('selected');
         selectedOption = opt;
         nextBtn.disabled = false;
       });
       answerArea.appendChild(btn);
     });
-  } else if (q.type === 'text') {
-    answerArea.classList.add('text-input');
-    const ta = document.createElement('textarea');
-    ta.placeholder = 'Write your answer here...';
-    ta.maxLength = 300;
-
-    const counter = document.createElement('div');
-    counter.className = 'char-count';
-    counter.textContent = '0 / 300';
-
-    ta.addEventListener('input', () => {
-      const len = ta.value.trim().length;
-      counter.textContent = `${ta.value.length} / 300`;
-      nextBtn.disabled = len < 5;
-      selectedOption = ta.value.trim();
-    });
-
-    answerArea.appendChild(ta);
-    answerArea.appendChild(counter);
-    ta.focus();
+    return;
   }
+
+  answerArea.classList.add('text-input');
+  const ta = document.createElement('textarea');
+  ta.placeholder = 'Write your answer here...';
+  ta.maxLength = 300;
+
+  const counter = document.createElement('div');
+  counter.className = 'char-count';
+  counter.textContent = '0 / 300';
+
+  ta.addEventListener('input', () => {
+    const trimmedValue = ta.value.trim();
+    counter.textContent = `${ta.value.length} / 300`;
+    nextBtn.disabled = trimmedValue.length < 5;
+    selectedOption = trimmedValue;
+  });
+
+  answerArea.appendChild(ta);
+  answerArea.appendChild(counter);
+  ta.focus();
 }
 
 // ===== NEXT BUTTON =====
@@ -723,13 +834,14 @@ document.getElementById('next-btn').addEventListener('click', () => {
     answer: selectedOption || ''
   });
 
-  currentQuestion++;
+  currentQuestion += 1;
 
   if (currentQuestion < activeQuestions.length) {
     loadQuestion();
-  } else {
-    runAnalysis();
+    return;
   }
+
+  runAnalysis();
 });
 
 // ===== LOADING MESSAGES =====
@@ -769,7 +881,7 @@ async function runAnalysis() {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.href,
           'X-Title': 'Personality Matchmaker'
@@ -799,7 +911,6 @@ async function runAnalysis() {
         continue;
       }
 
-      // some models wrap errors in a 200 with an error-like message
       if (raw.toLowerCase().includes('provider returned error') || raw.toLowerCase().includes('no endpoints found')) {
         lastError = 'Provider error.';
         console.warn(`Model ${model} returned provider error in body.`);
@@ -817,7 +928,6 @@ async function runAnalysis() {
       const result = JSON.parse(jsonMatch[0]);
       showResults(result);
       return;
-
     } catch (err) {
       lastError = 'Could not reach the AI. Check your connection and try again.';
     }
@@ -829,6 +939,8 @@ async function runAnalysis() {
 
 // ===== SHOW RESULTS =====
 function showResults(data) {
+  currentResultData = data;
+  setShareStatus('');
   document.getElementById('result-emoji').textContent = data.emoji || '✨';
   document.getElementById('result-title').textContent = data.title || 'Your Profile';
   document.getElementById('result-subtitle').textContent = data.subtitle || '';
@@ -837,10 +949,10 @@ function showResults(data) {
   const traitsEl = document.getElementById('result-traits');
   traitsEl.innerHTML = '';
   if (Array.isArray(data.traits)) {
-    data.traits.forEach(t => {
+    data.traits.forEach((trait) => {
       const tag = document.createElement('span');
       tag.className = 'trait-tag';
-      tag.textContent = t;
+      tag.textContent = trait;
       traitsEl.appendChild(tag);
     });
   }
@@ -866,6 +978,8 @@ function showResults(data) {
 
 // ===== ERROR HANDLING =====
 function showError(msg) {
+  currentResultData = null;
+  setShareStatus('');
   showScreen('results');
   document.getElementById('result-emoji').textContent = '⚠️';
   document.getElementById('result-title').textContent = 'Oops!';
@@ -878,8 +992,24 @@ function showError(msg) {
 // ===== RESTART =====
 document.getElementById('restart-btn').addEventListener('click', () => {
   document.getElementById('player-name').value = '';
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
-  document.querySelector('.mode-btn[data-mode="personality"]').classList.add('selected');
+  document.querySelectorAll('.mode-btn').forEach((button) => button.classList.remove('selected'));
   currentMode = 'personality';
+  currentQuestion = 0;
+  answers = [];
+  activeQuestions = [];
+  hasChosenMode = false;
+  currentResultData = null;
+  quizLength = 10;
+  lengthSlider.value = '10';
+  updateLengthLabel();
+  lengthPicker.classList.remove('visible');
+  startBtn.disabled = true;
+  startBtn.textContent = 'Choose a Quiz First ->';
+  setShareStatus('');
   showScreen('welcome');
 });
+
+document.getElementById('copy-result-btn').addEventListener('click', copyResultToClipboard);
+document.getElementById('download-result-btn').addEventListener('click', downloadResultImage);
+
+updateLengthLabel();

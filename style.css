@@ -181,6 +181,24 @@ h1 {
   background: rgba(255,255,255,0.04);
   border: 1.5px solid var(--card-border);
   border-radius: 12px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-width: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, max-height 0.25s ease, margin-bottom 0.25s ease, padding 0.25s ease, border-width 0.25s ease, transform 0.25s ease;
+}
+
+.quiz-length-picker.visible {
+  opacity: 1;
+  max-height: 220px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border-width: 1.5px;
+  transform: translateY(0);
 }
 
 .quiz-length-header {
@@ -388,6 +406,10 @@ h1 {
 
 /* ===== RESULTS SCREEN ===== */
 .results-card { padding: 40px 36px; }
+.results-card.is-capturing .share-panel,
+.results-card.is-capturing #restart-btn {
+  display: none;
+}
 
 .result-subtitle {
   text-align: center;
@@ -434,6 +456,42 @@ h1 {
 
 .result-match strong { color: var(--text); display: block; margin-bottom: 6px; }
 
+.share-panel {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.share-title {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+
+.share-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.share-btn {
+  margin-top: 0;
+  padding: 12px;
+  font-size: 0.92rem;
+}
+
+.share-status {
+  min-height: 1.25rem;
+  margin-top: 10px;
+  font-size: 0.84rem;
+  color: #c4b5fd;
+  text-align: center;
+}
+
 h2 {
   font-size: 1.7rem;
   font-weight: 800;
@@ -450,4 +508,5 @@ h2 {
   .card { padding: 28px 20px; }
   h1 { font-size: 1.6rem; }
   .question-text { font-size: 1.05rem; }
+  .share-actions { grid-template-columns: 1fr; }
 }
