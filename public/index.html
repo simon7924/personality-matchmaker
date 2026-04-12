@@ -17,7 +17,7 @@
       <div class="mode-picker">
         <p>Choose your quiz mode:</p>
         <div class="mode-buttons">
-          <button class="mode-btn selected" data-mode="personality">
+          <button class="mode-btn" data-mode="personality">
             <span class="mode-icon">🌟</span>
             <span class="mode-name">Personality Profile</span>
             <span class="mode-desc">What archetype are you?</span>
@@ -37,7 +37,20 @@
       <input type="text" id="player-name" placeholder="Enter your name (optional)" maxlength="40" />
       <input type="password" id="api-key" placeholder="OpenRouter API key (sk-or-...)" />
       <p class="api-hint">Get a free key at <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>. It stays in your browser only.</p>
-      <button id="start-btn" class="btn-primary">Start Quiz →</button>
+      <div id="quiz-length-picker" class="quiz-length-picker">
+        <div class="quiz-length-header">
+          <span class="quiz-length-label">Quiz length</span>
+          <span class="quiz-length-value" id="quiz-length-value">10 questions</span>
+        </div>
+        <input type="range" id="quiz-length" min="5" max="20" value="10" step="1" class="length-slider" />
+        <div class="quiz-length-ticks">
+          <span>5</span>
+          <span>10</span>
+          <span>15</span>
+          <span>20</span>
+        </div>
+      </div>
+      <button id="start-btn" class="btn-primary" disabled>Choose a Quiz First →</button>
     </div>
   </div>
 
@@ -47,7 +60,7 @@
       <div class="progress-bar-wrap">
         <div id="progress-bar" class="progress-bar"></div>
       </div>
-      <div id="question-counter" class="question-counter">Question 1 of 7</div>
+      <div id="question-counter" class="question-counter">Question 1 of 10</div>
       <div id="question-text" class="question-text"></div>
       <div id="answer-area" class="answer-area"></div>
       <button id="next-btn" class="btn-primary" disabled>Next →</button>
