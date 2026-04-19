@@ -134,6 +134,19 @@ async function raceModels(models, systemPrompt, userMessage) {
   });
 }
 
+app.get('/api/debug', async (req, res) => {
+  const keySet = !!process.env.OPENROUTER_API_KEY;
+  const keyPrefix = keySet ? process.env.OPENROUTER_API_KEY.slice(0, 12) + '...' : 'NOT SET';
+  let models = [];
+  let modelError = null;
+  try {
+    models = await getModels();
+  } catch (err) {
+    modelError = err.message;
+  }
+  res.json({ keySet, keyPrefix, modelCount: models.length, modelError, firstFew: models.slice(0, 3) });
+});
+
 app.post('/api/analyze', async (req, res) => {
   const { mode, playerName, answers } = req.body;
 
