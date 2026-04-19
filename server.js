@@ -70,7 +70,7 @@ async function getModels() {
 
 async function tryModel(model, systemPrompt, userMessage) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20000);
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -93,18 +93,10 @@ async function tryModel(model, systemPrompt, userMessage) {
     });
 
     const data = await response.json();
-
-    if (!response.ok || data.error) {
-      throw new Error(data.error?.message || `HTTP ${response.status}`);
-    }
+    if (!response.ok || data.error) throw new Error(data.error?.message || `HTTP ${response.status}`);
 
     const raw = data.choices?.[0]?.message?.content || '';
-
-    if (
-      !raw ||
-      raw.toLowerCase().includes('provider returned error') ||
-      raw.toLowerCase().includes('no endpoints found')
-    ) {
+    if (!raw || raw.toLowerCase().includes('provider returned error') || raw.toLowerCase().includes('no endpoints found')) {
       throw new Error('Bad provider response');
     }
 
@@ -115,6 +107,31 @@ async function tryModel(model, systemPrompt, userMessage) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+// Race all models — return result from whichever succeeds first
+async function raceModels(models, systemPrompt, userMessage) {
+  return new Promise((resolve, reject) => {
+    let failures = 0;
+    let resolved = false;
+    for (const model of models) {
+      tryModel(model, systemPrompt, userMessage)
+        .then((result) => {
+          if (!resolved) {
+            resolved = true;
+            console.log(`Won race: ${model}`);
+            resolve(result);
+          }
+        })
+        .catch((err) => {
+          console.warn(`Model ${model} failed: ${err.message}`);
+          failures++;
+          if (failures === models.length && !resolved) {
+            reject(new Error('All models failed'));
+          }
+        });
+    }
+  });
 }
 
 app.post('/api/analyze', async (req, res) => {
@@ -143,19 +160,13 @@ app.post('/api/analyze', async (req, res) => {
     return res.status(500).json({ error: 'Could not load AI models. Please try again.' });
   }
 
-  for (const model of models) {
-    try {
-      console.log(`Trying model: ${model}`);
-      const result = await tryModel(model, systemPrompt, userMessage);
-      console.log(`Success with model: ${model}`);
-      return res.json(result);
-    } catch (err) {
-      console.warn(`Model ${model} failed: ${err.message}`);
-    }
+  try {
+    const result = await raceModels(models, systemPrompt, userMessage);
+    return res.json(result);
+  } catch (err) {
+    console.error('All models failed:', err.message);
+    return res.status(500).json({ error: 'AI analysis failed. Please try again.' });
   }
-
-  console.error('All models failed.');
-  res.status(500).json({ error: 'AI analysis failed. Please try again.' });
 });
 
 const PORT = process.env.PORT || 3000;
