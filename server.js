@@ -50,45 +50,22 @@ Your response MUST be valid JSON with exactly this structure:
 }`
 };
 
-// Fallback list — used if live model fetch fails
-const FALLBACK_MODELS = [
-  'google/gemma-4-26b-a4b-it:free',
-  'openai/gpt-oss-20b:free',
-  'openai/gpt-oss-120b:free',
-  'google/gemma-4-31b-it:free',
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'google/gemma-3-27b-it:free',
-  'google/gemma-3-12b-it:free',
-  'nousresearch/hermes-3-llama-3.1-405b:free',
-  'meta-llama/llama-3.2-3b-instruct:free',
-  'qwen/qwen3-coder:free'
-];
-
 let cachedModels = null;
 let cacheTime = 0;
 
 async function getModels() {
-  // Refresh model list every 10 minutes
   if (cachedModels && Date.now() - cacheTime < 10 * 60 * 1000) return cachedModels;
-  try {
-    const res = await fetch('https://openrouter.ai/api/v1/models', {
-      headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` }
-    });
-    if (!res.ok) throw new Error('Model list fetch failed');
-    const data = await res.json();
-    const free = data.data.filter((m) => m.id.endsWith(':free')).map((m) => m.id);
-    if (free.length > 0) {
-      // Put fallback models first (known good), then append any extras from live list
-      const extras = free.filter((id) => !FALLBACK_MODELS.includes(id));
-      cachedModels = [...FALLBACK_MODELS.filter((id) => free.includes(id)), ...extras];
-      cacheTime = Date.now();
-      console.log(`Loaded ${cachedModels.length} free models from OpenRouter`);
-      return cachedModels;
-    }
-  } catch (err) {
-    console.warn('Could not fetch live model list, using fallback:', err.message);
-  }
-  return FALLBACK_MODELS;
+  const res = await fetch('https://openrouter.ai/api/v1/models', {
+    headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` }
+  });
+  if (!res.ok) throw new Error(`Model list fetch failed: ${res.status}`);
+  const data = await res.json();
+  const free = data.data.filter((m) => m.id.endsWith(':free')).map((m) => m.id);
+  if (free.length === 0) throw new Error('No free models returned');
+  cachedModels = free;
+  cacheTime = Date.now();
+  console.log(`Loaded ${free.length} free models from OpenRouter`);
+  return free;
 }
 
 async function tryModel(model, systemPrompt, userMessage) {
@@ -158,7 +135,15 @@ app.post('/api/analyze', async (req, res) => {
     .join('\n\n');
   const userMessage = `Player name: ${name}\n\nHere are their quiz answers:\n\n${answerBlock}\n\nPlease analyze these responses and return the JSON profile.`;
 
-  for (const model of MODELS) {
+  let models;
+  try {
+    models = await getModels();
+  } catch (err) {
+    console.error('Failed to fetch model list:', err.message);
+    return res.status(500).json({ error: 'Could not load AI models. Please try again.' });
+  }
+
+  for (const model of models) {
     try {
       console.log(`Trying model: ${model}`);
       const result = await tryModel(model, systemPrompt, userMessage);
