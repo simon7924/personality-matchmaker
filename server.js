@@ -53,8 +53,8 @@ Your response MUST be valid JSON with exactly this structure:
 let cachedModels = null;
 let cacheTime = 0;
 
-async function getModels() {
-  if (cachedModels && Date.now() - cacheTime < 10 * 60 * 1000) return cachedModels;
+async function getModels({ forceRefresh = false } = {}) {
+  if (!forceRefresh && cachedModels && Date.now() - cacheTime < 10 * 60 * 1000) return cachedModels;
   const res = await fetch('https://openrouter.ai/api/v1/models', {
     headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` }
   });
@@ -93,7 +93,13 @@ async function tryModel(model, systemPrompt, userMessage) {
     });
 
     const data = await response.json();
-    if (!response.ok || data.error) throw new Error(data.error?.message || `HTTP ${response.status}`);
+    if (!response.ok || data.error) {
+      const errMsg = data.error?.message || `HTTP ${response.status}`;
+      // Log specific error types for debugging
+      if (response.status === 429) console.warn(`Rate limited on ${model}`);
+      if (response.status === 402) console.warn(`Quota exceeded on ${model}`);
+      throw new Error(errMsg);
+    }
 
     const raw = data.choices?.[0]?.message?.content || '';
     if (!raw || raw.toLowerCase().includes('provider returned error') || raw.toLowerCase().includes('no endpoints found')) {
@@ -144,7 +150,37 @@ app.get('/api/debug', async (req, res) => {
   } catch (err) {
     modelError = err.message;
   }
-  res.json({ keySet, keyPrefix, modelCount: models.length, modelError, firstFew: models.slice(0, 3) });
+
+  // Try one model and return the raw response for diagnosis
+  let probeResult = null;
+  if (models.length > 0) {
+    try {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 8000);
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
+          'X-Title': 'Personality Matchmaker'
+        },
+        body: JSON.stringify({
+          model: models[0],
+          messages: [{ role: 'user', content: 'Say "ok"' }],
+          max_tokens: 10
+        })
+      });
+      clearTimeout(t);
+      const data = await r.json();
+      probeResult = { status: r.status, model: models[0], response: data };
+    } catch (err) {
+      probeResult = { error: err.message, model: models[0] };
+    }
+  }
+
+  res.json({ keySet, keyPrefix, modelCount: models.length, modelError, firstFew: models.slice(0, 3), probeResult });
 });
 
 app.post('/api/analyze', async (req, res) => {
@@ -177,8 +213,16 @@ app.post('/api/analyze', async (req, res) => {
     const result = await raceModels(models, systemPrompt, userMessage);
     return res.json(result);
   } catch (err) {
-    console.error('All models failed:', err.message);
-    return res.status(500).json({ error: 'AI analysis failed. Please try again.' });
+    // All cached models failed — bust the cache and retry once with a fresh list
+    console.warn('All cached models failed, refreshing model list and retrying...');
+    try {
+      const freshModels = await getModels({ forceRefresh: true });
+      const result = await raceModels(freshModels, systemPrompt, userMessage);
+      return res.json(result);
+    } catch (retryErr) {
+      console.error('All models failed after refresh:', retryErr.message);
+      return res.status(500).json({ error: 'AI analysis failed. Please try again.' });
+    }
   }
 });
 
