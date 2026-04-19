@@ -539,31 +539,6 @@ const QUESTIONS = {
   ]
 };
 
-// ===== OPENROUTER CONFIG =====
-let OPENROUTER_API_KEY = '';
-
-async function getAvailableModels() {
-  try {
-    const res = await fetch('https://openrouter.ai/api/v1/models', {
-      headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}` }
-    });
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    const freeModels = data.data
-      .filter((m) => m.id.endsWith(':free'))
-      .map((m) => m.id);
-    if (freeModels.length > 0) return freeModels;
-  } catch {}
-
-  return [
-    'meta-llama/llama-3.3-8b-instruct:free',
-    'mistralai/mistral-7b-instruct:free',
-    'google/gemma-3-27b-it:free',
-    'deepseek/deepseek-r1-distill-llama-70b:free',
-    'qwen/qwen-2-7b-instruct:free'
-  ];
-}
-
 const MODE_PROMPTS = {
   personality: `You are an insightful personality analyst for a fun quiz game.
 A player has answered a series of personality questions. Analyze their responses and create a vivid, personalized personality profile.
@@ -610,6 +585,7 @@ Your response MUST be valid JSON with exactly this structure:
 
 // ===== STATE =====
 let currentMode = 'personality';
+
 let playerName = '';
 let currentQuestion = 0;
 let answers = [];
@@ -770,13 +746,6 @@ async function downloadResultImage() {
 startBtn.addEventListener('click', () => {
   if (!hasChosenMode) return;
 
-  const keyInput = document.getElementById('api-key').value.trim();
-  if (!keyInput) {
-    alert('Please enter your OpenRouter API key.');
-    return;
-  }
-
-  OPENROUTER_API_KEY = keyInput;
   playerName = document.getElementById('player-name').value.trim();
   currentQuestion = 0;
   answers = [];
@@ -915,74 +884,26 @@ async function runAnalysis() {
   showScreen('loading');
   const interval = cycleLoadingMessages();
 
-  const name = playerName || 'the player';
-  const answerBlock = answers
-    .map((a, i) => `Q${i + 1}: ${a.question}\nAnswer: ${a.answer}`)
-    .join('\n\n');
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: currentMode, playerName, answers })
+    });
 
-  const userMessage = `Player name: ${name}\n\nHere are their quiz answers:\n\n${answerBlock}\n\nPlease analyze these responses and return the JSON profile.`;
+    const data = await response.json();
+    clearInterval(interval);
 
-  const models = await getAvailableModels();
-  let lastError = 'AI request failed.';
-  for (const model of models) {
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.href,
-          'X-Title': 'Personality Matchmaker'
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: MODE_PROMPTS[currentMode] },
-            { role: 'user', content: userMessage }
-          ],
-          max_tokens: 1024
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        lastError = data.error?.message || 'AI request failed.';
-        console.warn(`Model ${model} failed:`, lastError);
-        continue;
-      }
-
-      const raw = data.choices?.[0]?.message?.content;
-      if (!raw) {
-        lastError = 'AI returned an empty response.';
-        console.warn(`Model ${model} returned no content.`);
-        continue;
-      }
-
-      if (raw.toLowerCase().includes('provider returned error') || raw.toLowerCase().includes('no endpoints found')) {
-        lastError = 'Provider error.';
-        console.warn(`Model ${model} returned provider error in body.`);
-        continue;
-      }
-
-      const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        lastError = 'AI returned an unexpected format.';
-        console.warn(`Model ${model} returned non-JSON:`, raw.slice(0, 100));
-        continue;
-      }
-
-      clearInterval(interval);
-      const result = JSON.parse(jsonMatch[0]);
-      showResults(result);
+    if (!response.ok || data.error) {
+      showError(data.error || 'AI request failed. Please try again.');
       return;
-    } catch (err) {
-      lastError = 'Could not reach the AI. Check your connection and try again.';
     }
-  }
 
-  clearInterval(interval);
-  showError(lastError);
+    showResults(data);
+  } catch (err) {
+    clearInterval(interval);
+    showError('Could not reach the server. Check your connection and try again.');
+  }
 }
 
 // ===== SHAREABLE URL =====
