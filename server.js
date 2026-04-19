@@ -115,29 +115,34 @@ async function tryModel(model, systemPrompt, userMessage) {
   }
 }
 
-// Race all models — return result from whichever succeeds first
+// Race a small batch of models to stay under OpenRouter's 20 req/min free limit.
+// If the batch all fail, try the next batch sequentially until one succeeds.
 async function raceModels(models, systemPrompt, userMessage) {
-  return new Promise((resolve, reject) => {
-    let failures = 0;
-    let resolved = false;
-    for (const model of models) {
-      tryModel(model, systemPrompt, userMessage)
-        .then((result) => {
-          if (!resolved) {
-            resolved = true;
-            console.log(`Won race: ${model}`);
-            resolve(result);
-          }
-        })
-        .catch((err) => {
-          console.warn(`Model ${model} failed: ${err.message}`);
-          failures++;
-          if (failures === models.length && !resolved) {
-            reject(new Error('All models failed'));
-          }
-        });
+  const BATCH_SIZE = 5;
+
+  for (let i = 0; i < models.length; i += BATCH_SIZE) {
+    const batch = models.slice(i, i + BATCH_SIZE);
+    try {
+      const result = await new Promise((resolve, reject) => {
+        let failures = 0;
+        for (const model of batch) {
+          tryModel(model, systemPrompt, userMessage)
+            .then((result) => resolve(result))
+            .catch((err) => {
+              console.warn(`Model ${model} failed: ${err.message}`);
+              failures++;
+              if (failures === batch.length) reject(new Error(`Batch ${i / BATCH_SIZE + 1} failed`));
+            });
+        }
+      });
+      console.log(`Succeeded in batch ${i / BATCH_SIZE + 1}`);
+      return result;
+    } catch {
+      console.warn(`Batch ${i / BATCH_SIZE + 1} exhausted, trying next batch...`);
     }
-  });
+  }
+
+  throw new Error('All models failed');
 }
 
 app.get('/api/debug', async (req, res) => {
