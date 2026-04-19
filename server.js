@@ -50,25 +50,66 @@ Your response MUST be valid JSON with exactly this structure:
 }`
 };
 
-const FALLBACK_MODELS = [
+// Ordered by reliability — tried sequentially until one works
+const MODELS = [
   'meta-llama/llama-3.3-8b-instruct:free',
+  'meta-llama/llama-3.1-8b-instruct:free',
   'mistralai/mistral-7b-instruct:free',
+  'mistralai/mistral-small-3.1-24b-instruct:free',
+  'google/gemma-3-12b-it:free',
   'google/gemma-3-27b-it:free',
   'deepseek/deepseek-r1-distill-llama-70b:free',
+  'qwen/qwen3-8b:free',
   'qwen/qwen-2-7b-instruct:free'
 ];
 
-async function getModels() {
+async function tryModel(model, systemPrompt, userMessage) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
+
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/models', {
-      headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` }
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
+        'X-Title': 'Personality Matchmaker'
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 1024
+      })
     });
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    const free = data.data.filter((m) => m.id.endsWith(':free')).map((m) => m.id);
-    if (free.length > 0) return free;
-  } catch {}
-  return FALLBACK_MODELS;
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      throw new Error(data.error?.message || `HTTP ${response.status}`);
+    }
+
+    const raw = data.choices?.[0]?.message?.content || '';
+
+    if (
+      !raw ||
+      raw.toLowerCase().includes('provider returned error') ||
+      raw.toLowerCase().includes('no endpoints found')
+    ) {
+      throw new Error('Bad provider response');
+    }
+
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+
+    return JSON.parse(jsonMatch[0]);
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 app.post('/api/analyze', async (req, res) => {
@@ -89,55 +130,18 @@ app.post('/api/analyze', async (req, res) => {
     .join('\n\n');
   const userMessage = `Player name: ${name}\n\nHere are their quiz answers:\n\n${answerBlock}\n\nPlease analyze these responses and return the JSON profile.`;
 
-  const models = await getModels();
-  let lastError = 'AI request failed.';
-
-  for (const model of models) {
+  for (const model of MODELS) {
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
-          'X-Title': 'Personality Matchmaker'
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage }
-          ],
-          max_tokens: 1024
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        lastError = data.error?.message || 'AI request failed.';
-        console.warn(`Model ${model} failed:`, lastError);
-        continue;
-      }
-
-      const raw = data.choices?.[0]?.message?.content;
-      if (!raw) { lastError = 'Empty response.'; continue; }
-
-      if (raw.toLowerCase().includes('provider returned error') || raw.toLowerCase().includes('no endpoints found')) {
-        lastError = 'Provider error.'; continue;
-      }
-
-      const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { lastError = 'Unexpected format.'; continue; }
-
-      return res.json(JSON.parse(jsonMatch[0]));
+      console.log(`Trying model: ${model}`);
+      const result = await tryModel(model, systemPrompt, userMessage);
+      console.log(`Success with model: ${model}`);
+      return res.json(result);
     } catch (err) {
-      lastError = err.message;
-      console.warn(`Model ${model} threw:`, err.message);
+      console.warn(`Model ${model} failed: ${err.message}`);
     }
   }
 
-  console.error('All models failed. Last error:', lastError);
+  console.error('All models failed.');
   res.status(500).json({ error: 'AI analysis failed. Please try again.' });
 });
 
