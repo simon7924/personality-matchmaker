@@ -81,6 +81,12 @@ const QUESTIONS = {
       ]
     },
     {
+      type: 'scale',
+      question: "On a scale of 1 to 10, how strongly do you trust your gut when making big decisions?",
+      minLabel: 'Mostly logic',
+      maxLabel: 'Mostly intuition'
+    },
+    {
       type: 'text',
       question: "What's a belief or value you hold that most people around you don't share?"
     },
@@ -254,6 +260,12 @@ const QUESTIONS = {
       ]
     },
     {
+      type: 'scale',
+      question: "On a scale of 1 to 10, how quickly do you open up emotionally in a new friendship?",
+      minLabel: 'Very slowly',
+      maxLabel: 'Very quickly'
+    },
+    {
       type: 'text',
       question: "Has a friendship ever changed you in a meaningful way? How?"
     },
@@ -425,6 +437,12 @@ const QUESTIONS = {
         "Prefer to receive it privately, not in front of others",
         "Want specific examples so I can act on it"
       ]
+    },
+    {
+      type: 'scale',
+      question: "On a scale of 1 to 10, how comfortable are you taking the lead when a team needs direction?",
+      minLabel: 'Prefer to support',
+      maxLabel: 'Naturally lead'
     },
     {
       type: 'text',
@@ -804,6 +822,36 @@ function loadQuestion() {
     return;
   }
 
+  if (q.type === 'scale') {
+    answerArea.classList.add('scale-input');
+
+    const labels = document.createElement('div');
+    labels.className = 'scale-labels';
+    labels.innerHTML = `<span>${q.minLabel || 'Low'}</span><span>${q.maxLabel || 'High'}</span>`;
+
+    const scaleGrid = document.createElement('div');
+    scaleGrid.className = 'scale-grid';
+
+    for (let value = 1; value <= 10; value += 1) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'scale-btn';
+      btn.textContent = String(value);
+      btn.setAttribute('aria-label', `${value} out of 10`);
+      btn.addEventListener('click', () => {
+        scaleGrid.querySelectorAll('.scale-btn').forEach((button) => button.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedOption = `${value}/10`;
+        nextBtn.disabled = false;
+      });
+      scaleGrid.appendChild(btn);
+    }
+
+    answerArea.appendChild(labels);
+    answerArea.appendChild(scaleGrid);
+    return;
+  }
+
   answerArea.classList.add('text-input');
   const ta = document.createElement('textarea');
   ta.placeholder = 'Write your answer here...';
@@ -937,10 +985,48 @@ async function runAnalysis() {
   showError(lastError);
 }
 
+// ===== SHAREABLE URL =====
+function encodeResultToHash(data) {
+  try {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  } catch {
+    return null;
+  }
+}
+
+function decodeResultFromHash(hash) {
+  try {
+    return JSON.parse(decodeURIComponent(escape(atob(hash))));
+  } catch {
+    return null;
+  }
+}
+
+async function copyShareLink() {
+  const hash = encodeResultToHash(currentResultData);
+  if (!hash) { setShareStatus('Could not generate link.'); return; }
+  const url = `${window.location.origin}${window.location.pathname}#${hash}`;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  setShareStatus('Link copied to clipboard!');
+}
+
 // ===== SHOW RESULTS =====
 function showResults(data) {
   currentResultData = data;
   setShareStatus('');
+  const hash = encodeResultToHash(data);
+  if (hash) history.replaceState(null, '', `#${hash}`);
   document.getElementById('result-emoji').textContent = data.emoji || '✨';
   document.getElementById('result-title').textContent = data.title || 'Your Profile';
   document.getElementById('result-subtitle').textContent = data.subtitle || '';
@@ -1006,10 +1092,20 @@ document.getElementById('restart-btn').addEventListener('click', () => {
   startBtn.disabled = true;
   startBtn.textContent = 'Choose a Quiz First ->';
   setShareStatus('');
+  history.replaceState(null, '', window.location.pathname);
   showScreen('welcome');
 });
 
+document.getElementById('share-link-btn').addEventListener('click', copyShareLink);
 document.getElementById('copy-result-btn').addEventListener('click', copyResultToClipboard);
 document.getElementById('download-result-btn').addEventListener('click', downloadResultImage);
 
 updateLengthLabel();
+
+// ===== LOAD FROM SHARED URL =====
+(function checkSharedResult() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  const data = decodeResultFromHash(hash);
+  if (data && data.title) showResults(data);
+})();
