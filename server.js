@@ -50,18 +50,46 @@ Your response MUST be valid JSON with exactly this structure:
 }`
 };
 
-// Ordered by reliability — tried sequentially until one works
-const MODELS = [
-  'meta-llama/llama-3.3-8b-instruct:free',
-  'meta-llama/llama-3.1-8b-instruct:free',
-  'mistralai/mistral-7b-instruct:free',
-  'mistralai/mistral-small-3.1-24b-instruct:free',
-  'google/gemma-3-12b-it:free',
+// Fallback list — used if live model fetch fails
+const FALLBACK_MODELS = [
+  'google/gemma-4-26b-a4b-it:free',
+  'openai/gpt-oss-20b:free',
+  'openai/gpt-oss-120b:free',
+  'google/gemma-4-31b-it:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
   'google/gemma-3-27b-it:free',
-  'deepseek/deepseek-r1-distill-llama-70b:free',
-  'qwen/qwen3-8b:free',
-  'qwen/qwen-2-7b-instruct:free'
+  'google/gemma-3-12b-it:free',
+  'nousresearch/hermes-3-llama-3.1-405b:free',
+  'meta-llama/llama-3.2-3b-instruct:free',
+  'qwen/qwen3-coder:free'
 ];
+
+let cachedModels = null;
+let cacheTime = 0;
+
+async function getModels() {
+  // Refresh model list every 10 minutes
+  if (cachedModels && Date.now() - cacheTime < 10 * 60 * 1000) return cachedModels;
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/models', {
+      headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` }
+    });
+    if (!res.ok) throw new Error('Model list fetch failed');
+    const data = await res.json();
+    const free = data.data.filter((m) => m.id.endsWith(':free')).map((m) => m.id);
+    if (free.length > 0) {
+      // Put fallback models first (known good), then append any extras from live list
+      const extras = free.filter((id) => !FALLBACK_MODELS.includes(id));
+      cachedModels = [...FALLBACK_MODELS.filter((id) => free.includes(id)), ...extras];
+      cacheTime = Date.now();
+      console.log(`Loaded ${cachedModels.length} free models from OpenRouter`);
+      return cachedModels;
+    }
+  } catch (err) {
+    console.warn('Could not fetch live model list, using fallback:', err.message);
+  }
+  return FALLBACK_MODELS;
+}
 
 async function tryModel(model, systemPrompt, userMessage) {
   const controller = new AbortController();
